@@ -1,0 +1,41 @@
+name: 'Task 1: Terraform CI/CD'
+
+on:
+  push:
+    paths:
+      - 'task1/**'
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    name: 'Terraform Plan & Apply'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task1
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.SPACES_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.SPACES_SECRET_KEY }}
+      TF_VAR_do_token: ${{ secrets.DO_TOKEN }}
+      TF_VAR_spaces_access_id: ${{ secrets.SPACES_ACCESS_KEY }}
+      TF_VAR_spaces_secret_key: ${{ secrets.SPACES_SECRET_KEY }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Plan (Перевірка)
+      # Перевірка правильності розгортання ресурсів без їхнього розгортання [cite: 24]
+      # Якщо команда падає, конвеєр зупиняє виконання [cite: 25]
+      run: terraform plan
+
+    - name: Terraform Apply (Розгортання)
+      # Виконується лише якщо Plan пройшов успішно
+      run: terraform apply -auto-approve
