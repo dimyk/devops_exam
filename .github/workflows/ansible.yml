@@ -1,0 +1,25 @@
+name: 'Task 2: Ansible Setup'
+
+on:
+  push:
+    paths:
+      - 'task2/**'
+  workflow_dispatch:
+
+jobs:
+  ansible:
+    name: 'Run Ansible Playbook'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install sshpass (for password authentication)
+      run: sudo apt-get install -y sshpass
+
+    - name: Run Ansible Playbook
+      env:
+        DROPLET_PASSWORD: ${{ secrets.DROPLET_PASSWORD }}
+      run: |
+        ansible-playbook -i task2/inventory.ini task2/playbook.yml
